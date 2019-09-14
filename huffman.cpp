@@ -1,6 +1,6 @@
-#include<iostream>
+//#include<iostream>
 #include<fstream>
-#include<conio.h>
+//#include<conio.h> does not work in linux
 #include"krishna.h"
 #include"mohit.h"
 #include<bitset>
@@ -18,13 +18,15 @@ hufftree* treeFetch(hufftree*,string,ofstream&);
 int main()
 {
 	ifstream file;
-	char fileName[50],eFileName[50];//,tFileName[50];
+	string fileName,eFileName;//,tFileName[50];
 	char x;
 	int fList[128];
 	for(int i=0;i<128;i++)
         fList[i]=0;
-	gets(fileName);
-	gets(eFileName);
+    cout<<"Input File: ";
+	getline(cin,fileName);
+    cout<<"Output File: ";
+	getline(cin,eFileName);
 	//gets(tFileName);
 	file.open(fileName,ios::in|ios::binary);
 	//creating freq list of all characters in the file
@@ -52,11 +54,11 @@ int main()
     treeRecover(&rRoot,rtfile);
     treeprint(rRoot);*/
 
-    //debugging
-    char earr[16]={'\0'};
+    //debugging -done
+    char earr[17]={'\0'};
     hufftree_parser(root,earr); // encoded letters
     cout<<"encoded the letters";
-    //debugging
+    //debugging -done
 
     ofstream efile;
     efile.open(eFileName,ios::app);
@@ -66,9 +68,9 @@ int main()
     encodeFile(efile,file);
     file.close();
     efile.close();
-    ifstream efile2("ehuff",ios::binary);
+    ifstream efile2(eFileName,ios::binary);
     ofstream dfile("dtest.txt");
-    decodeFile(dfile,efile2);
+    decodeFile(dfile,efile2); //not working
     for(int i=0;i<128;i++)
         if(fList[i]!=0)
         {

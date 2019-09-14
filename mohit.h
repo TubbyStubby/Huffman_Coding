@@ -49,17 +49,17 @@ void tree_creator(int TheGivenList[128])
     root = pop();
 }
 
-void hufftree_parser(struct hufftree *root, char encode[16])
+void hufftree_parser(struct hufftree *root, char encode[17])
 {
     if(root->left==NULL && root->right==NULL)
     {
         strcpy(encoded[root->c],encode);
         return;
     }
-    char tmp1[]={'\0'};
+    char tmp1[17]={'\0'};
     strcpy(tmp1,encode);strcat(tmp1,"0");
     hufftree_parser(root->left,tmp1);
-    char tmp2[]={'\0'};
+    char tmp2[17]={'\0'};
     strcpy(tmp2,encode);strcat(tmp2,"1");
     hufftree_parser(root->right,tmp2);
 }
