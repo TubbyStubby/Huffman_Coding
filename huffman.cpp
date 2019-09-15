@@ -53,15 +53,10 @@ int main()
     ofstream tfile(tFileName);
     saveTree(root,tfile);
     tfile.close();
-    /*save and recovery of tree not working
-    treeprint(root);
-    ofstream tfile(tFileName);
-    saveTree(root,tfile);
-    tfile.close();
-    ifstream rtfile("tree11");
+    ifstream rtfile(tFileName);
     hufftree *rRoot=NULL;
     treeRecover(&rRoot,rtfile);
-    treeprint(rRoot);*/
+    treeprint(rRoot);
 
     //debugging -done
     char earr[17]={'\0'};
@@ -141,9 +136,9 @@ tree saving format rlr
      / \
     a   b
    / \ / \
-     cs   r
+  c    s  r
 
-w<a<.,c<.,.>>,b<s<............
+w<a<c<.,.>,.>,b<s<............
 */
 void saveTree(hufftree *tnd, ofstream &cout)
 {
@@ -165,8 +160,8 @@ void treeRecover(hufftree **r,ifstream &file) // not being used right now
 {
     if(file.eof())return;
     char c;
-    file>>c;
-    if(c=='\\')return;
+    file>>noskipws>>c;
+    if(c=='.')return;
     if(c=='~')file>>c;
     /*{
         cout<<"Null";
@@ -176,8 +171,16 @@ void treeRecover(hufftree **r,ifstream &file) // not being used right now
     t->left=t->right=NULL;
     t->fr=-86;
     t->c=c;
-    treeRecover(&(*r)->left,file);
-    treeRecover(&(*r)->right,file);
+    *r=t;
+    file>>c;
+    if(c=='<')
+        treeRecover(&(*r)->left,file);
+    file>>c;
+    if(c==',')
+        treeRecover(&(*r)->right,file);
+    file>>c;
+    if(c=='>')
+        return;
 }
 
 hufftree* treeFetch(hufftree *r,string s,ofstream &file)
