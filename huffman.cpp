@@ -10,7 +10,7 @@ using namespace std;
 
 char tobin(char*); // converting binary string to single char
 void encodeFile(ofstream&,ifstream&);
-void decodeFile(ofstream&,ifstream&);
+void decodeFile(ofstream&,ifstream&,hufftree*);
 void saveTree(hufftree*,ofstream&);
 void treeRecover(hufftree**,ifstream&);
 hufftree* treeFetch(hufftree*,string,ofstream&);
@@ -25,8 +25,9 @@ int main()
         fList[i]=0;
     cout<<"Input File: ";
 	getline(cin,fileName);
-    cout<<"Output File: ";
-	getline(cin,eFileName);
+    eFileName="e"+fileName+".huff";
+    /* cout<<"Output File: ";
+	getline(cin,eFileName); */
 	//gets(tFileName);
 	file.open(fileName,ios::in|ios::binary);
 	//creating freq list of all characters in the file
@@ -46,10 +47,11 @@ int main()
 
     treeprint(root);
     cout<<"\n";
-    
+
     //testing treerecovery
-    cout<<"\nTree File: ";
-	getline(cin,tFileName);
+    tFileName=fileName+".tree";
+    /* cout<<"\nTree File: ";
+	getline(cin,tFileName); */
     ofstream tfile(tFileName);
     saveTree(root,tfile);
     tfile.close();
@@ -61,7 +63,7 @@ int main()
     //debugging -done
     char earr[17]={'\0'};
     hufftree_parser(root,earr); // encoded letters
-    cout<<"encoded the letters";
+    cout<<"\nencoded the letters";
     //debugging -done
 
     ofstream efile;
@@ -73,12 +75,6 @@ int main()
     encodeFile(efile,file); //working properly
     file.close();
     efile.close();
-    
-    //--------Debugging 
-    ifstream efile2(eFileName);
-    ofstream dfile("dtest.txt");
-    decodeFile(dfile,efile2); //not working
-    //--------Debugging
 
     for(int i=0;i<128;i++)
         if(fList[i]!=0)
@@ -86,6 +82,13 @@ int main()
             cout<<char(i)<<" "<<fList[i]<<" ";
             cout<<encoded[i]<<" "<<strlen(encoded[i])<<endl;
         }
+    
+    //--------Debugging 
+    ifstream efile2(eFileName);
+    ofstream dfile("dec"+fileName);
+    decodeFile(dfile,efile2,rRoot); //not working
+    //--------Debugging
+    cout<<endl;
 }
 
 char tobin(char *a)
@@ -183,6 +186,7 @@ void treeRecover(hufftree **r,ifstream &file) // not being used right now
         return;
 }
 
+//dropping this function
 hufftree* treeFetch(hufftree *r,string s,ofstream &file)
 {
     hufftree *ret=r;
@@ -202,18 +206,35 @@ hufftree* treeFetch(hufftree *r,string s,ofstream &file)
     return ret;
 }
 
-void decodeFile(ofstream &dfile,ifstream &efile)
+void decodeFile(ofstream &dfile,ifstream &efile, hufftree *r)
 {
-    /*char tfileName[50],x;
-    gets(tfileName);
-    hufftree *abs;*/
-    hufftree *t=NULL;
+    string s;
     char x;
-    while(efile.read(&x,sizeof(char)))
+    while(1)
+	{
+	    efile>>noskipws>>x;
+        s+=bitset<8>((int)x).to_string();
+	    if(efile.eof())break;
+	}
+    /*while(efile.read(&x,sizeof(char)))
+        s+=bitset<8>((int)x).to_string();*/
+    hufftree* temp=r;
+    for(string::iterator i=s.begin();i!=s.end();i++)
     {
-        string bin=bitset<8>((int)x).to_string();
+        if(temp->left==NULL && temp->right==NULL)
+        {
+            dfile<<temp->c;
+            temp=r;
+        }
+        if(*i=='0')
+            temp=temp->left;
+        else if(*i=='1')
+            temp=temp->right;
+        else
+            cout<<"\ndecode: key error";
+        /*string bin=bitset<8>((int)x).to_string();
         if(t==NULL)
             t=root;
-        t=treeFetch(root,bin,dfile);
+        t=treeFetch(root,bin,dfile);*/
     }
 }
