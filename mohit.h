@@ -41,7 +41,7 @@ void tree_creator(int TheGivenList[128])
         temp->right = pop();
         cout<<temp->left->c<<" "<<temp->left->fr<<endl;
         cout<<temp->right->c<<" "<<temp->right->fr<<endl;
-        temp->c=' ';
+        temp->c='`';
         temp->fr = temp->left->fr + temp->right->fr;
         push(temp, temp->fr);
         view();
@@ -67,9 +67,14 @@ void hufftree_parser(struct hufftree *root, char encode[17])
 void treeprint(hufftree *tnd)
 {
     if(tnd==NULL)
+    {
+        cout<<'.';
         return;
-
+    }
+    cout<<tnd->c<<'<';
     treeprint(tnd->left);
-    cout<<tnd->c<<" "<<tnd->fr<<endl;
+    cout<<',';
+    //cout<<tnd->c<<" "<<tnd->fr<<endl;
     treeprint(tnd->right);
+    cout<<'>';
 }

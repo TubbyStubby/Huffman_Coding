@@ -18,7 +18,7 @@ hufftree* treeFetch(hufftree*,string,ofstream&);
 int main()
 {
 	ifstream file;
-	string fileName,eFileName;//,tFileName[50];
+	string fileName,eFileName,tFileName;
 	char x;
 	int fList[128];
 	for(int i=0;i<128;i++)
@@ -44,6 +44,15 @@ int main()
 
     cout<<"tree created\n";
 
+    treeprint(root);
+    cout<<"\n";
+    
+    //testing treerecovery
+    cout<<"\nTree File: ";
+	getline(cin,tFileName);
+    ofstream tfile(tFileName);
+    saveTree(root,tfile);
+    tfile.close();
     /*save and recovery of tree not working
     treeprint(root);
     ofstream tfile(tFileName);
@@ -61,16 +70,21 @@ int main()
     //debugging -done
 
     ofstream efile;
-    efile.open(eFileName,ios::app);
+    efile.open(eFileName);//,ios::app);
+    
     // writing encoded characters to file
     file.clear();
     file.seekg(0,ios::beg);
-    encodeFile(efile,file);
+    encodeFile(efile,file); //working properly
     file.close();
     efile.close();
-    ifstream efile2(eFileName,ios::binary);
+    
+    //--------Debugging 
+    ifstream efile2(eFileName);
     ofstream dfile("dtest.txt");
     decodeFile(dfile,efile2); //not working
+    //--------Debugging
+
     for(int i=0;i<128;i++)
         if(fList[i]!=0)
         {
@@ -121,37 +135,49 @@ void encodeFile(ofstream &efile,ifstream &file)
     }
 }
 
-void saveTree(hufftree *r,ofstream &tfile)
+/*
+tree saving format rlr
+      w
+     / \
+    a   b
+   / \ / \
+     cs   r
+
+w<a<.,c<.,.>>,b<s<............
+*/
+void saveTree(hufftree *tnd, ofstream &cout)
 {
-    if(r==NULL)
+    if(tnd==NULL)
     {
-        tfile<<'\\';
+        cout<<'.';
         return;
     }
-    tfile<<r->c;
-    saveTree(r->left,tfile);
-    saveTree(r->right,tfile);
+    if(tnd->c=='<' || tnd->c=='.' || tnd->c=='~' || tnd->c=='>')
+        cout<<'~';
+    cout<<tnd->c<<'<';
+    saveTree(tnd->left, cout);
+    cout<<',';
+    saveTree(tnd->right, cout);
+    cout<<'>';
 }
 
-void treeRecover(hufftree **r,ifstream &file)
+void treeRecover(hufftree **r,ifstream &file) // not being used right now
 {
-    static int i=0;
-
+    if(file.eof())return;
     char c;
     file>>c;
-    if(c=='\\')
-    {
+    if(c=='\\')return;
+    if(c=='~')file>>c;
+    /*{
         cout<<"Null";
         return;
-    }
+    }*/
     hufftree *t=new hufftree;
     t->left=t->right=NULL;
     t->fr=-86;
     t->c=c;
     treeRecover(&(*r)->left,file);
     treeRecover(&(*r)->right,file);
-    i++;
-    cout<<i;
 }
 
 hufftree* treeFetch(hufftree *r,string s,ofstream &file)
